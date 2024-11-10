@@ -24,4 +24,5 @@ class userLogin(BaseModel):
 class chuckNorrisFact(BaseModel):
     id: str
     fact: str
-    
+
+

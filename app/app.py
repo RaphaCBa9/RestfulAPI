@@ -14,42 +14,6 @@ from baseModels import *
 from config import *
 import hashlib
 
-"""
-
-Endpoint
-
-POST /registrar
-
-request:
-    JSON payload
-
-    {
-        "nome": "Disciplina Cloud",
-        "email": "cloud@insper.edu.br",
-        "senha": "cloud0"
-    }
-
-Response
-
-    JSON payload
-
-    {
-        "jwt": "jwt_token"
-    }
-
-sequenceDiagram
-
-    autonumber
-    actor Alice
-    Alice->>+App: POST /registrar
-    App->>+Postgres: consulta email
-    break se email encontrado
-        Postgres-->>Alice: error 409
-    end
-    App->>Postgres: grava dados e hash da senha no bd
-    App->>App: gera JWT Token
-    App-->>-Alice: retorna JWT Token
-"""
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
