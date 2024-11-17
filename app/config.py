@@ -10,8 +10,8 @@ from pydantic import BaseModel
 
 
 # jwt consfiguration
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = "penes"
 ALGORITHM = "HS256"
 
 # database configuration
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+SQLALCHEMY_DATABASE_URL = "postgresql://postgres:admin@localhost:5432/cloud?sslmode=disable"

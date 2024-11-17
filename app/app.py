@@ -1,19 +1,19 @@
-import os
 from fastapi import FastAPI, HTTPException, Depends, Request
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from sqlalchemy import create_engine, Column, Integer, String, Sequence
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 import jwt
 from datetime import datetime, timedelta
-import bcrypt
-import requests
-from pydantic import BaseModel
 from baseModels import *
 from config import *
 import hashlib
+from dotenv import load_dotenv
+import requests
 
+
+load_dotenv()
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -35,7 +35,7 @@ class User(Base):
 # FastAPI app
 app = FastAPI()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = HTTPBearer()
 
 
 @app.on_event("startup")
@@ -52,79 +52,84 @@ def get_db():
         db.close()
 
 
-
+# Função para criar o token JWT
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(datetime.timezone.utc) + expires_delta
-    else:
-        expire = datetime.now(datetime.timezone.utc) + timedelta(minutes=15)
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
-def authUserPassword(email: str, senha: str, db: Session):
+# Função para autenticar o usuário
+def auth_user_password(email: str, senha: str, db: Session):
     user = db.query(User).filter(User.email == email).first()
     if user is None:
         raise HTTPException(status_code=401, detail="Invalid email")
-    
-    hashPassword = hashlib.sha256(senha.encode()).hexdigest()
 
-    return user.hashSenha == hashPassword
+    hash_password = hashlib.sha256(senha.encode()).hexdigest()
+    return hash_password == user.hashSenha
 
 
+# Endpoint para registrar usuário
 @app.post("/registrar")
-def registerUser(user: userRegister, db: Session = Depends(get_db)):
-    
-
-    userAlreadyExists = (
-        db.query(User).filter(User.email == user.email).first() is not None
-    )
-    if userAlreadyExists:
+def register_user(user: userRegister, db: Session = Depends(get_db)):
+    user_already_exists = db.query(User).filter(User.email == user.email).first()
+    if user_already_exists:
         raise HTTPException(status_code=409, detail="Email already registered")
 
-    hashed_password = bcrypt.hashpw(user.senha.encode("utf-8"), bcrypt.gensalt())
-    newUser = User(
-        nome=user.nome, email=user.email, senha=user.senha, hashSenha=hashed_password
-    )
-    db.add(newUser)
+    hashed_password = hashlib.sha256(user.senha.encode()).hexdigest()
+    new_user = User(nome=user.nome, email=user.email, senha=user.senha, hashSenha=hashed_password)
+    db.add(new_user)
     db.commit()
-    db.refresh(newUser)
-    jwtData = {
-        "sub": newUser.email,
-        "id": newUser.id,
-    }
+    db.refresh(new_user)
 
-    return {"jwt": create_access_token(jwtData)}
+    jwt_data = {"sub": new_user.email, "id": new_user.id}
+    return {"jwt": create_access_token(jwt_data)}
 
+
+# Endpoint para login
 @app.post("/login")
 def login(user: userLogin, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == user.email).first()
-
-    userExists = user is not None
-
-    if not userExists:
+    db_user = db.query(User).filter(User.email == user.email).first()
+    if not db_user:
         raise HTTPException(status_code=401, detail="Invalid email")
-    
-    correctPassword = authUserPassword(user.email, user.senha, db)
 
-    if not correctPassword:
+    correct_password = auth_user_password(user.email, user.senha, db)
+    if not correct_password:
         raise HTTPException(status_code=401, detail="Invalid password")
-    jwtData = {
-        "sub": user.email,
-        "id": user.id,
-    }
-    return {"jwt": create_access_token(jwtData)}
 
+    jwt_data = {"sub": db_user.email, "id": db_user.id}
+    return {"jwt": create_access_token(jwt_data)}
+
+
+# Middleware para validar o token JWT
+async def JWTBearer(
+    credentials: HTTPAuthorizationCredentials = Depends(oauth2_scheme),
+    db: Session = Depends(get_db),
+):
+    token = credentials.credentials
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=403, detail="Invalid token")
+
+        user = db.query(User).filter(User.email == email).first()
+        if user is None:
+            raise HTTPException(status_code=403, detail="User not found")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid token")
+    return user
+
+
+# Rota protegida
 @app.get("/consultar")
-def consultar(request: Request, token: str = Depends(oauth2_scheme)):
-    chuckNorris = requests.get("https://api.chucknorris.io/jokes/random")
-    chuckNorrisJson = chuckNorris.json()
+def consultar(request: Request, authorization=[Depends(HTTPBearer)]):
+    chuck_norris = requests.get("https://api.chucknorris.io/jokes/random")
+    chuck_norris_json = chuck_norris.json()
 
-    consultaBody = {
-        "id": chuckNorrisJson["id"],
-        "fact": chuckNorrisJson["value"],
-    }
-    
-    return consultaBody
+    consulta_body = {"id": chuck_norris_json["id"], "fact": chuck_norris_json["value"]}
+    return consulta_body
