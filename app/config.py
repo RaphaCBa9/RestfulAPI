@@ -7,11 +7,21 @@ from datetime import datetime, timedelta
 import bcrypt
 import requests
 from pydantic import BaseModel
+from dotenv import load_dotenv
 
+load_dotenv(override=True)
 
 # jwt consfiguration
-SECRET_KEY = "penes"
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 
 # database configuration
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:admin@localhost:5432/cloud?sslmode=disable"
+USER= os.getenv("USER")
+PASSWORD= os.getenv("PASSWORD")
+HOST= os.getenv("HOST")
+PORT= os.getenv("PORT")
+DATABASE= os.getenv("DB_NAME")
+
+
+# database connection
+SQLALCHEMY_DATABASE_URL = f"postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"

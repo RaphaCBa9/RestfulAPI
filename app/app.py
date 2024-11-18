@@ -70,6 +70,13 @@ def auth_user_password(email: str, senha: str, db: Session):
     hash_password = hashlib.sha256(senha.encode()).hexdigest()
     return hash_password == user.hashSenha
 
+@app.get("/")
+def home():
+    return {
+        "message": "Ooops, acho que você está perdido!", 
+        "solução": "Acesse localhost:8000/docs para testar a API."
+        }
+
 
 # Endpoint para registrar usuário
 @app.post("/registrar")
