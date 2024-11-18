@@ -2,9 +2,7 @@ version: "3.9"
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: app/Dockerfile
+    image: raphaba9/restfulapi-app
     container_name: python_app
     ports:
       - "8000:8000"
