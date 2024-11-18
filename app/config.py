@@ -16,12 +16,6 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 
 # database configuration
-USER= os.getenv("USER", "postgres")
-PASSWORD= os.getenv("PASSWORD", "postgres")
-HOST= os.getenv("HOST", "localhost")
-PORT= os.getenv("PORT", "5432")
-DATABASE= os.getenv("DB_NAME", "postgres")
-
 
 # database connection
-SQLALCHEMY_DATABASE_URL = f"postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
+SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL", "postgresql://user:password@port/dbname")

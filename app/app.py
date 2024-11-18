@@ -35,6 +35,7 @@ class User(Base):
 # FastAPI app
 app = FastAPI()
 
+
 oauth2_scheme = HTTPBearer()
 
 
