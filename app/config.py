@@ -16,11 +16,11 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 
 # database configuration
-USER= os.getenv("USER")
-PASSWORD= os.getenv("PASSWORD")
-HOST= os.getenv("HOST")
-PORT= os.getenv("PORT")
-DATABASE= os.getenv("DB_NAME")
+USER= os.getenv("USER", "postgres")
+PASSWORD= os.getenv("PASSWORD", "postgres")
+HOST= os.getenv("HOST", "localhost")
+PORT= os.getenv("PORT", "5432")
+DATABASE= os.getenv("DB_NAME", "postgres")
 
 
 # database connection
