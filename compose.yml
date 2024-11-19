@@ -5,7 +5,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-seuUsuario}:${POSTGRES_PASSWORD:-suaSenha}@db:5432/${POSTGRES_DB:-suaBase}
+      SQLALCHEMY_DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       SECRET_KEY: "${SECRET_KEY:-superChaveSecretaUau}"
     depends_on:
       - db
@@ -20,8 +20,4 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-seuUsuario}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-suaSenha}
       POSTGRES_DB: ${POSTGRES_DB:-suaBase}
-    volumes:
-      - db_data:/var/lib/postgresql/data
 
-volumes:
-  db_data:

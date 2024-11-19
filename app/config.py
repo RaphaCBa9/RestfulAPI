@@ -18,4 +18,4 @@ ALGORITHM = "HS256"
 # database configuration
 
 # database connection
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL", "postgresql://user:password@port/dbname")
+SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL", "postgresql://seuUsuario:suaSenha@db:5432/suaBase")
