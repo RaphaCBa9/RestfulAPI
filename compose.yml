@@ -1,6 +1,6 @@
 services:
   app:
-    image: raphaba9/restfulapi-app
+    image: raphaba9/restfulapi-app:v2
     container_name: python_app
     ports:
       - "8000:8000"

@@ -5,7 +5,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Copie os arquivos de requisitos para a imagem
-COPY app/requirements.txt .
+COPY requirements.txt .
 
 # Atualize os pacotes e instale dependências
 RUN apt-get update && apt-get install -y net-tools \
@@ -23,4 +23,4 @@ COPY . /app
 EXPOSE 8000
 
 # Comando para iniciar o servidor
-CMD ["fastapi", "run", "app/app.py", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["fastapi", "run", "app.py", "--host", "0.0.0.0", "--port", "8000"]
