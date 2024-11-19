@@ -5,7 +5,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-suaSenha}@db:5432/${POSTGRES_DB:-suaBase}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-seuUsuario}:${POSTGRES_PASSWORD:-suaSenha}@db:5432/${POSTGRES_DB:-suaBase}
       SECRET_KEY: "${SECRET_KEY:-superChaveSecretaUau}"
     depends_on:
       - db
@@ -17,9 +17,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-projeto}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-projeto}
-      POSTGRES_DB: ${POSTGRES_DB:-projeto}
+      POSTGRES_USER: ${POSTGRES_USER:-seuUsuario}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-suaSenha}
+      POSTGRES_DB: ${POSTGRES_DB:-suaBase}
     volumes:
       - db_data:/var/lib/postgresql/data
 
