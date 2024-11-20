@@ -1,13 +1,13 @@
+version: '3.8'
+
 services:
   db:
     image: postgres:15
     container_name: postgres_db
-    # ports:
-    #   - "5433:5432"
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-projeto}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-projeto}
-      POSTGRES_DB: ${POSTGRES_DB:-projeto}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+      POSTGRES_DB: ${POSTGRES_DB:-cloud}
     networks:
       - restfulapi-network
 
@@ -19,13 +19,12 @@ services:
     depends_on:
       - db
     environment:
-      SQLALCHEMY_DATABASE_URL: postgresql://${POSTGRES_USER:-projeto}:${POSTGRES_PASSWORD:-projeto}@db:5432/${POSTGRES_DB:-projeto}
-      SECRET_KEY: "${SECRET_KEY:-superChaveSecretaUau}"
+      SQLALCHEMY_DATABASE_URL: "postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-admin}@db:5432/${POSTGRES_DB:-cloud}"
+      SECRET_KEY: "SuperHiperMegaChaveSecreta123123"
       ALGORITHM: "HS256"
     restart: always
     networks:
       - restfulapi-network
-
 
 networks:
   restfulapi-network:
