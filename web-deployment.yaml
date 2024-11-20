@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: fastapi
-        image: fernandoalzueta/apirest:web
+        image: raphaba9/restfulapi-app:latest
         env:
           - name: SQLALCHEMY_DATABASE_URL
             value: "postgresql://postgres:admin@postgres:5432/cloud"
