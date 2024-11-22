@@ -7,7 +7,7 @@
 **Link para vídeo-demonstração da dockerização do projeto:**  [Vídeo-demonstração](https://youtu.be/HM9yQYtUGzY)
 
 ## 📄 Explicação do Projeto
-O projeto se trata de uma API RESTful que é capaz de cadastrar e autenticar usuários. Logo, a API RESTful foi criada para validar a infraestrutura de um aplicativo. Após a construção da API, o projeto foi dockerizado e, então, implantado no AWS.
+O projeto se trata de uma API RESTful que é capaz de cadastrar e autenticar usuários, ou seja, validar a infraestrutura de um aplicativo. Após a construção da API, o projeto foi dockerizado e, então, implantado no AWS.
 
 O endpoint de consulta utilizado é uma API de fatos/piadas envolvendo o artista marcial, ator, produtor de cinema e roteirista americano Chuck Norris.
 Para saber mais sobre essa API, acesse [este link](https://api.chucknorris.io/).
