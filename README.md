@@ -134,8 +134,14 @@ curl -X 'GET' \
   'http://0.0.0.0:8000/consultar?authorization=seuTokenDeAcesso' \
   -H 'accept: application/json'
 ```
+## 4) Finalizando o conteiner
+Para finalizar o conteiner do docker, rode o comando:
+```
+docker compose down --volumes
+```
+___
 
-## Teste dos endpoints do projeto
+# Teste dos endpoints do projeto
 
 ### Registro de usuários
 ![gif_consulta](imgs/gif_registrar.gif)
