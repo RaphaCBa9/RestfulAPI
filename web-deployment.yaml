@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: fastapi
-        image: raphaba9/restfulapi-app:webdeploy
+        image: raphaba9/webdeploy:v3
         env:
           - name: SQLALCHEMY_DATABASE_URL
             value: "postgresql://postgres:admin@postgres:5432/cloud"
