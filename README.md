@@ -14,7 +14,6 @@ Para saber mais sobre essa API, acesse [este link](https://api.chucknorris.io/).
 
 # Como executar a api via Docker
 
-**Para os que não gostam de ler, acesse [este link!]**
 ## 0) Pré-requisitos
 
 ### Docker
