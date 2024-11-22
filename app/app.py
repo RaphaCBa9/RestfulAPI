@@ -141,3 +141,4 @@ def consultar(request: Request, authorization=[Depends(HTTPBearer)]):
 
     consulta_body = {"id": chuck_norris_json["id"], "fact": chuck_norris_json["value"]}
     return consulta_body
+oauth2_scheme = HTTPBearer()
