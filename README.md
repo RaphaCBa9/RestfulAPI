@@ -151,3 +151,283 @@ ___
 
 ### Consulta a API
 ![gif_consulta](imgs/gif_consultar.gif)
+
+
+
+# Implementação do projeto na AWS
+
+## Interação via **FastAPI Swagger**
+
+
+http://a91098edad62a4d1ba4cf2b2e1b7a0d8-1412143645.us-east-1.elb.amazonaws.com/docs
+
+## Interação via CLI
+
+### Endpoint `/registrar`
+```
+$ curl -X 'POST' \
+  'http://a91098edad62a4d1ba4cf2b2e1b7a0d8-1412143645.us-east-1.elb.amazonaws.com/registrar' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "nome": "Seu Nome",
+  "email": "SeuEmail@exemplo.com",
+  "senha": "SuaSenha"
+}'
+```
+
+
+### Endpoint ```./login```
+```
+curl -X 'POST' \
+  'http://a91098edad62a4d1ba4cf2b2e1b7a0d8-1412143645.us-east-1.elb.amazonaws.com/login' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "email": "seuEmail@exemplo.com",
+  "senha": "SuaSenha"
+}'
+```
+
+#### A saída esperada é:
+
+```
+{
+  "jwt": "seuTokenDeAcesso"
+}
+```
+
+
+
+### Endpoint ```./consultar```
+
+```
+curl -X 'GET' \
+  'http://a91098edad62a4d1ba4cf2b2e1b7a0d8-1412143645.us-east-1.elb.amazonaws.com/consultar?authorization=seuTokenDeAcesso' \
+  -H 'accept: application/json'
+```
+
+#### A saída esperada é:
+```
+{
+"id":"z-sPdqWoRtaXiMLbozz2Tg",
+"fact":"Fato sobre o Chuck Norris"
+}
+```
+
+# Processo para hospedar um cluster Kubernetes na AWS
+
+## 0) Pré-requisitos
+
+### AWS CLI
+O **AWS CLI** uma ferramenta de código aberto da Amazon Web Services (AWS) que permite interagir com a plataforma por meio de uma interface de linha de comando.
+
+Para instalar a interface, acesse a [documentação oficial.](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+
+Verifique a instalação executando no terminal:
+```bash
+aws --version
+```
+O resultado esperado deve ser semelhante a:
+```bash
+aws-cli/2.22.3 Python/3.12.6 Linux/6.8.0-49-generic exe/x86_64.ubuntu.22
+```
+
+### Kubectl
+
+Kubectl é uma ferramenta de linha de comando que permite interagir com clusters do Kubernetes
+
+Para instalar a interface, acesse a [documentação oficial.](https://kubernetes.io/docs/tasks/tools/)
+
+Verifique a instalação executando no terminal:
+```bash
+kubectl version
+```
+O resultado esperado deve ser semelhante a:
+```bash
+Client Version: v1.31.2
+Kustomize Version: v5.4.2
+Server Version: v1.30.6-eks-7f9249a
+```
+
+### Eksctl
+Eksctl é uma ferramenta de linha de comando (CLI) oficial do Amazon Elastic Kubernetes Service (Amazon EKS)
+
+Para instalar a interface, acesse a [documentação oficial.](https://eksctl.io/installation/)
+
+Verifique a instalação executando no terminal:
+```bash
+eksctl version
+```
+O resultado esperado deve ser semelhante a:
+```bash
+0.194.0
+```
+
+## 1) Configuração da AWS
+
+### 1.1) Chave de acesso
+As chaves de acesso são necessárias para que o AWS CLI possa executar os comandos em nome da sua conta AWS
+
+Acesse o console IAM: [IAM Console](https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-1#/users)
+
+## 2) Criando o cluster e configurando o kubectl
+
+Criação do cluster EKS com dois nós.
+```bash
+eksctl create cluster --name api-restful --region us-east-1 --nodes 2 --node-type t3.medium
+```
+
+Conexão do kubectl com o cluster
+```bash
+aws eks --region us-east-1 update-kubeconfig --name api-restful
+```
+
+Verificando os clusters:
+```
+eksctl get cluster
+```
+
+Se os clusters foram criados corretamente, a saída deve ser algo parecido com:
+
+```
+NAME		  REGION		EKSCTL CREATED
+api-restful	  us-east-1	    True
+```
+
+## 3) Montagem dos arquivos ``deployment.yaml``
+
+### 3.1) web-deployment.yaml
+
+Este arquivo é responsável por realizar a configuração do Deployment da Aplicação (FastAPI):
+- Utiliza a imagem Docker raphaba9/restfulapi-app:latest.
+- Define variáveis de ambiente para configuração da aplicação
+
+Configuração do serviço de LoadBalancing.
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fastapi
+  template:
+    metadata:
+      labels:
+        app: fastapi
+    spec:
+      containers:
+      - name: fastapi
+        image: raphaba9/restfulapi-app:latest
+        env:
+          - name: SQLALCHEMY_DATABASE_URL
+            value: "postgresql://postgres:admin@postgres:5432/cloud"
+          - name: SECRET_KEY
+            value: "SuperHiperMegaChaveSecreta123123"
+        ports:
+          - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8000
+  selector:
+    app: fastapi
+```
+### 3.2) db-deployment.yaml
+
+Realização da configuração do Deployment do Banco de Dados (PostgreSQL):
+
+- Cria um Deployment para um banco de dados PostgreSQL.
+- Utiliza a imagem Docker postgres:15.
+- Define variáveis de ambiente para configurar o banco de dados
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        env:
+          - name: POSTGRES_USER
+            value: "postgres"
+          - name: POSTGRES_PASSWORD
+            value: "admin"
+          - name: POSTGRES_DB
+            value: "cloud"
+        ports:
+          - containerPort: 5432
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: postgres
+```
+
+## 4) Realizando o deployment da base de dados e da aplicação
+
+Para criar os recursos no cluster com base nas definições dos arquivos `.yaml`, execute estes comandos:
+
+```
+kubectl apply -f db-deployment.yaml 
+kubectl apply -f web-deployment.yaml
+```
+
+## 5) Verificando os pods
+
+Para verificar os pods em execução no cluster, execute:
+```bash
+kubectl get pods
+```
+Se os pods foram criados corretamente, a saída deve ser algo parecido com:
+
+```
+NAME                        READY   STATUS    RESTARTS   AGE
+fastapi-5fb7fcc74-lt9ws     1/1     Running   0          30h
+postgres-7c9d46fff9-z6p8m   1/1     Running   0          30h
+```
+
+## 6) Conseguindo o link de acesso
+O link de acesso é providenciado pelo serviço de LoadBalancing.
+
+```bash
+kubectl get svc fastapi-service
+```
+
+```
+NAME              TYPE           CLUSTER-IP      EXTERNAL-IP                                                               PORT(S)        AGE
+fastapi-service   LoadBalancer   10.100.230.34   a91098edad62a4d1ba4cf2b2e1b7a0d8-1412143645.us-east-1.elb.amazonaws.com   80:32543/TCP   30h
+
+```
+
+## 7) Para acessar o Swagger da Fastapi:
+
+```
+http://a91098edad62a4d1ba4cf2b2e1b7a0d8-1412143645.us-east-1.elb.amazonaws.com/docs
+```
