@@ -158,8 +158,9 @@ ___
 
 # Implementação do projeto na AWS
 
-## Interação via **FastAPI Swagger**
+## [Vídeo demonstração (clique aqui)](https://youtu.be/t4ATfIjhNjY)
 
+## Interação via **FastAPI Swagger**
 
 http://a91098edad62a4d1ba4cf2b2e1b7a0d8-1412143645.us-east-1.elb.amazonaws.com/docs
 
