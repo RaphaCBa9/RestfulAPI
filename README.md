@@ -44,7 +44,9 @@ $ cd novaPasta
 
 ### 1.3) Coloque o arquivo ```compose.yml``` no diretório criado
 
-Baixe o arquivo, clicando [aqui](./compose.yaml)
+Baixe o arquivo, clicando [aqui](https://github.com/RaphaCBa9/RestfulAPI/blob/main/compose.yml)
+
+![alt text](imgs/image.png)
 
 Ou clone [este repositório](https://github.com/RaphaCBa9/RestfulAPI) do GitHub (caso possua git em sua máquina)
 
